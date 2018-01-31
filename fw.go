@@ -7,21 +7,29 @@ import(
 )
 
 
-func echoHandler(w http.ResponseWriter, r *http.Request){
-	var event map[string]interface{}
+func echoHandler(w http.ResponseWriter, r *http.Request) {
+        if r.Method != "POST" {
+          http.Error(w, "Invalid request method.", 405)
+          return
+        }
+
+        var event map[string]interface{}
 	err := json.NewDecoder(r.Body).Decode(&event)
-	if err != nil{
-		panic(err)
+
+        if err != nil {
+		http.Error(w, "Invalid json", 400)
+                return
 	}
+
 	fmt.Println(event)
 }
 
 
 
 func main(){
-	http.HandleFunc("/echo", echoHandler)
+	http.HandleFunc("/event/session", echoHandler)
 
-	http.ListenAndServe("10.82.0.42:8000", nil)
+	http.ListenAndServe("0.0.0.0:8000", nil)
 }
 
 
