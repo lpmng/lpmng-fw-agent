@@ -1,3 +1,0 @@
-[run]
-source = lpmng_fw_agent
-omit = lpmng_fw_agent/test*
