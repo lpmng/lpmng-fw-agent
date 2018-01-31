@@ -4,6 +4,7 @@ import(
     "fmt"
     "net/http"
     "encoding/json"
+    "os/exec"
 )
 
 type Session struct {
@@ -35,9 +36,11 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 
     switch event.Action {
         case "created", "updated" :
-            fmt.Println(event.Session.Ip4)
-            fmt.Println(event.Session.Internet)
-            fmt.Println(event.Action)
+            if event.Session.Internet {
+                exec.Command("pfctl -t autorized_users -T add " + event.Session.Ip4)
+            } else if event.Action == "updated" {
+                exec.Command("pfctl -t autorized_users -T delete " + event.Session.Ip4)
+            }
         default:
             http.Error(w, "Wrong action type. Supported action are 'created', 'updated'.", 400)
     }
@@ -45,7 +48,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 
 
 
-func main(){
+func main() {
     http.HandleFunc("/event/session", echoHandler)
 
     http.ListenAndServe("0.0.0.0:8000", nil)
