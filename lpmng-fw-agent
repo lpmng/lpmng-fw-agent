@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# PROVIDE lpmng-fw-agent
+# REQUIRE: DAEMON
+
+. /etc/rc.subr
+
+name=lpmng_fw_agent
+rcvar=`set_rcvar`
+command="/opt/lpmng-fw-agent/fw"
+start_cmd="/usr/sbin/daemon $command"
+load_rc_config $name
+run_rc_command "$1"
+
