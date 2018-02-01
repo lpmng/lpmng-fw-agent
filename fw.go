@@ -32,14 +32,21 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), 400)
         return
     }
-
     switch event.Action {
         case "created", "updated" :
-            if event.Session.Internet {
-                exec.Command("pfctl -t autorized_users -T add " + event.Session.Ip4)
+            if (event.Session.Internet) && (event.Session.User != 0) {
+	        cmd := exec.Command("/sbin/pfctl", "-t", "authorized_users", "-T", "add", event.Session.Ip4)
+		if err := cmd.Run(); err != nil {
+		    http.Error(w, err.Error(), 500)
+		    return
+		}
             } else if event.Action == "updated" {
-                exec.Command("pfctl -t autorized_users -T delete " + event.Session.Ip4)
-            }
+	        cmd := exec.Command("/sbin/pfctl", "-t", "authorized_users", "-T", "delete", event.Session.Ip4)
+		if err := cmd.Run() ; err != nil {
+		    http.Error(w, err.Error(), 500)
+		    return
+		}
+	    }
         default:
             http.Error(w, "Wrong action type. Supported action are 'created', 'updated'.", 400)
     }
@@ -52,5 +59,3 @@ func main() {
 
     http.ListenAndServe("0.0.0.0:8000", nil)
 }
-
-
