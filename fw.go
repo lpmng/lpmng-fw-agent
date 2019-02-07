@@ -4,6 +4,8 @@ import(
     "net/http"
     "encoding/json"
     "os/exec"
+    "strconv"
+    "fmt"
 )
 
 type Session struct {
@@ -32,6 +34,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, err.Error(), 400)
         return
     }
+    fmt.Println("Received event : " + event.Action + " from " + event.Session.Ip4 + " (" + strconv.Itoa(event.Session.User) + ", " + strconv.FormatBool(event.Session.Internet) + ")")
     switch event.Action {
         case "created", "updated" :
             if (event.Session.Internet) && (event.Session.User != 0) {
